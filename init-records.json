@@ -1,0 +1,16 @@
+[{
+    "name": "John",
+    "lastname": "Doe",
+    "gender": "m"
+},
+{
+    "name": "Jane",
+    "lastname": "Doe",
+    "gender": "f"
+},
+{
+    "name": "Test",
+    "lastname": "Testsson",
+    "gender": "m"
+}
+]
