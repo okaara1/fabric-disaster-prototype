@@ -268,7 +268,7 @@ function simulateDisaster() {
     docker rm -f $cc_container
 
   done
-  
+
 }
 
 # Using docker-compose-e2e-template.yaml, replace constants with private key file names
@@ -527,6 +527,8 @@ elif [ "$MODE" == "generate" ]; then
   EXPMODE="Generating certs and genesis block for"
 elif [ "$MODE" == "upgrade" ]; then
   EXPMODE="Upgrading the network"
+elif [ "$MODE" == "disaster" ]; then
+  EXPMODE="Initiating disater mode"
 else
   printHelp
   exit 1
@@ -580,6 +582,8 @@ elif [ "${MODE}" == "restart" ]; then ## Restart the network
   networkUp
 elif [ "${MODE}" == "upgrade" ]; then ## Upgrade the network from v1.0.x to v1.1
   upgradeNetwork
+elif [ "${MODE}" == "disaster" ]; then ## Initiate disaster
+  simulateDisaster
 else
   printHelp
   exit 1
