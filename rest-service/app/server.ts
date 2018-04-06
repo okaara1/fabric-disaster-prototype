@@ -1,13 +1,14 @@
 import express from 'express';
+import log4js from 'log4js';
+import morgan from 'morgan';
 
-import { WelcomeController, RecordController } from './controllers';
+import App from './app';
 
-const app: express.Application = express();
-const port: number = Number(process.env.PORT) || 3000;
+const port = Number(process.env.PORT) || 3000;
 
-app.use('/welcome', WelcomeController);
-app.use('/record', RecordController);
-
-app.listen(port, () => {
+/** Start the service */
+App.listen(port, () => {
     console.log(`Listening at http://localhost:${port}/`);
 });
+
+

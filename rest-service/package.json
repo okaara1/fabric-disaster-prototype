@@ -1,21 +1,38 @@
 {
+  "name": "rest-service",
+  "version": "1.0.0",
+  "description": "Basic REST Service to make requests against the hyperledger fabric blockchain.",
+  "main": "./dist/server.js",
   "dependencies": {
-    "@types/es6-shim": "^0.31.36",
-    "@types/express": "^4.11.1",
     "express": "^4.16.3",
+    "fabric-ca-client": "^1.1.0",
+    "fabric-client": "^1.1.0",
+    "grpc": "^1.10.1",
+    "mongodb": "^3.0.5",
+    "mongoose": "^5.0.13"
+  },
+  "devDependencies": {
+    "@types/express": "^4.11.1",
+    "@types/log4js": "^2.3.5",
+    "@types/morgan": "^1.7.35",
+    "log4js": "^2.5.3",
+    "morgan": "^1.9.0",
     "nodemon": "^1.17.3",
     "typescript": "^2.7.1"
   },
   "scripts": {
     "tsc": "tsc",
     "build": "tsc",
-    "start": "nodemon ./build/server.js"
+    "start": "tsc && nodemon ./dist/server.js"
   },
-  "name": "rest-service",
-  "description": "In this article we will set up an [Express][1] application using [Typescript][2].",
-  "version": "1.0.0",
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "Hyperledger",
+    "Blockchain",
+    "Fabric",
+    "REST Service",
+    "Node.js",
+    "Typescript"
+  ],
+  "author": "Filippo Boiani & Okan Arabaci",
+  "license": "MIT"
 }

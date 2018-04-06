@@ -1,2 +1,2 @@
-export * from './welcome.controller';
-export * from './med-record.controller';
+export { welcomeRoutes } from './welcome.controller';
+export { medicalRecordRoutes } from './med-record.controller';
