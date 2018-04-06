@@ -168,6 +168,73 @@ instantiateChaincode () {
 	echo
 }
 
+# instantiateTestChaincode() {
+# 	PEER=$1
+# 	ORG=$2
+# 	setGlobals $PEER $ORG
+# 	VERSION=${3:-1.0}
+
+# 	# while 'peer chaincode' command can get the orderer endpoint from the peer (if join was successful),
+# 	# lets supply it directly as we know it using the "-o" option
+# 	if [ -z "$CORE_PEER_TLS_ENABLED" -o "$CORE_PEER_TLS_ENABLED" = "false" ]; then
+#                 set -x
+# 		peer chaincode instantiate -o orderer.example.com:7050 -C $CHANNEL_NAME -n mycc -l ${LANGUAGE} -v ${VERSION} -P "OR	('Org1MSP.peer','Org2MSP.peer')" >&log.txt
+# 		res=$?
+#                 set +x
+# 	else
+#                 set -x
+# 		peer chaincode instantiate -o orderer.example.com:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n mycc -l ${LANGUAGE} -v ${VERSION} -P "OR ('Org1MSP.peer','Org2MSP.peer')" >&log.txt
+# 		res=$?
+#                 set +x
+# 	fi
+# 	cat log.txt
+# 	verifyResult $res "Chaincode instantiation on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME' failed"
+# 	echo "===================== Chaincode Instantiation on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME' is successful ===================== "
+# 	echo
+
+# }
+
+# installTestChaincode () {
+# 	PEER=$1
+# 	ORG=$2
+# 	setGlobals $PEER $ORG
+# 	VERSION=${3:-1.0}
+#         set -x
+# 	peer chaincode install -n mycc -v ${VERSION} -l ${LANGUAGE} -p /Users/okanarabaci1/fabric-samples/first-network/go-cc >&log.txt
+# 	res=$?
+#         set +x
+# 	cat log.txt
+# 	verifyResult $res "Chaincode installation on peer${PEER}.org${ORG} has Failed"
+# 	echo "===================== Chaincode is installed on peer${PEER}.org${ORG} ===================== "
+# 	echo
+# }
+
+# chaincodeTestQuery () {
+#   PEER=$1
+#   ORG=$2
+#   setGlobals $PEER $ORG
+#   EXPECTED_RESULT=$3
+#   echo "===================== Querying on peer${PEER}.org${ORG} on channel '$CHANNEL_NAME'... ===================== "
+#   local rc=1
+#   local starttime=$(date +%s)
+
+#   # continue to poll
+#   # we either get a successful response, or reach TIMEOUT
+#   while test "$(($(date +%s)-starttime))" -lt "$TIMEOUT" -a $rc -ne 0
+#   do
+#      sleep $DELAY
+#      echo "Attempting to Query peer${PEER}.org${ORG} ...$(($(date +%s)-starttime)) secs"
+#      set -x
+#      peer chaincode query -C $CHANNEL_NAME -n mycc -c '{"Args":["","a"]}' >&log.txt
+# 	 res=$?
+#      set +x
+#   done
+#   echo
+#   cat log.txt
+#   exit 1
+# }
+
+	
 upgradeChaincode () {
     PEER=$1
     ORG=$2

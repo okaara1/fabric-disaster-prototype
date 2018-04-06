@@ -105,3 +105,20 @@ PeerOrgs:
       Count: 2
     Users:
       Count: 1
+
+############# VM ###############
+# This is how we define our external hosts
+#
+#  - Name: Org6
+#    Domain: org6.example.com
+#    EnableNodeOUs: true
+#    Template:
+#      Count: 2
+#    Users:
+#      Count: 1
+#    #Specs is the field that allows us to define our hosts
+#    Specs:
+#      - Hostname: org6.example.com     # implicitly "[Hostname].org1.example.com"
+#      - CommonName: org6               # overrides Hostname-based FQDN set above
+#
+############# VM ###############
