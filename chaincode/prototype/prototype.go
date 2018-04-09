@@ -155,7 +155,7 @@ func toJson(p interface{}) string {
 }
 
 func getPages() []MedicalRecord {
-	raw, err := ioutil.ReadFile("init-records.json")
+	raw, err := ioutil.ReadFile("/Users/okanarabaci1/fabric-disaster-prototype/assets/init-records.json")
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
