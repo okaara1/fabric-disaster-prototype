@@ -1,5 +1,3 @@
-/////////////	Edited basic functions 	//////////////
-
 package main
 
 import (
@@ -7,15 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	"github.com/hyperledger/fabric/protos/peer"
+	pb "github.com/hyperledger/fabric/protos/peer"
 )
-
-// SimpleAsset implements a simple chaincode to manage an asset
-type SimpleAsset struct {
-}
 
 /* // MedicalRecord implements a simple chaincode to manage an asset
 type MedicalRecord struct {
@@ -47,29 +40,29 @@ type MedicalRecords struct {
 // Init is called during chaincode instantiation to initialize any
 // data. Note that chaincode upgrade also calls this function to reset
 // or to migrate data.
-func (t *SimpleAsset) Init(stub shim.ChaincodeStubInterface) peer.Response {
+func (t *MedicalRecord) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Success(nil)
 }
 
 // Invoke is called per transaction on the chaincode. Each transaction is
 // either a 'get' or a 'set' on the asset created by Init function. The Set
 // method may create a new asset by specifying a new key-value pair.
-func (t *SimpleAsset) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
+func (t *MedicalRecord) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	// Extract the function and args from the transaction proposal
 	function, args := stub.GetFunctionAndParameters()
 
 	var result string
 	var err error
 
-	// Route to the appropriate handler function to interact with the ledger appropriately
+	// Route to the appropriate handler function to interact with the ledger
 	if function == "getMedicalRecord" {
-		return s.getMedicalRecord(APIstub, args)
+		return t.getMedicalRecord(stub, args)
 	} else if function == "createMedicalRecord" {
-		return s.createMedicalRecord(APIstub)
+		//return t.createMedicalRecord(stub)
 	} else if function == "initLedger" {
-		return s.initLedger(APIstub)
+		return t.initLedger(stub)
 	} else if function == "deleteMedicalRecord" {
-		return s.deleteMedicalRecord(APIstub, args)
+		return t.deleteMedicalRecord(stub, args)
 	}
 
 	if err != nil {
@@ -81,7 +74,7 @@ func (t *SimpleAsset) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 }
 
 // Retrieve medical record of person with personal number as identifier
-func (t *SimpleChaincode) getMedicalRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *MedicalRecord) getMedicalRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	var personalNumber string // Entity
 	var err error
 
@@ -103,27 +96,22 @@ func (t *SimpleChaincode) getMedicalRecord(stub shim.ChaincodeStubInterface, arg
 		return shim.Error(jsonResp)
 	}
 
-	jsonResp := "{\"Personal number\":\"" + A + "\",\"Medical Record\":\"" + string(Avalbytes) + "\"}"
+	jsonResp := "{\"Personal number\":\"" + personalNumber + "\",\"Medical Record\":\"" + string(medicalRecord) + "\"}"
 	fmt.Printf("Query Response:%s\n", jsonResp)
-	return shim.Success(Avalbytes)
+	return shim.Success(medicalRecord)
 }
 
-func (s *SmartContract) createMedicalRecord(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+/* func (t *MedicalRecord) createMedicalRecord(APIstub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	if len(args) != 5 {
 		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}
-
-	var car = Car{Make: args[1], Model: args[2], Colour: args[3], Owner: args[4]}
-
-	carAsBytes, _ := json.Marshal(car)
-	APIstub.PutState(args[0], carAsBytes)
-
 	return shim.Success(nil)
 }
+*/
 
 // Not finished at all
-func (t *SimpleChaincode) deleteMedicalRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *MedicalRecord) deleteMedicalRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
@@ -141,12 +129,12 @@ func (t *SimpleChaincode) deleteMedicalRecord(stub shim.ChaincodeStubInterface, 
 
 ////////////////	Retrieve JSON template records	//////////////
 
-func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
+func (t *MedicalRecord) initLedger(APIstub shim.ChaincodeStubInterface) pb.Response {
 	pages := getPages()
 	for _, p := range pages {
 		fmt.Println(p.toString())
 		recordAsBytes, _ := json.Marshal(p)
-		APIstub.PutState("MedicalRecord"+strconv.Itoa(i), recordAsBytes)
+		APIstub.PutState("MedicalRecord"+p.toString(), recordAsBytes)
 	}
 
 	return shim.Success(nil)
@@ -182,7 +170,7 @@ func getPages() []MedicalRecord {
 func main() {
 
 	// Create a new Smart Contract
-	err := shim.Start(new(SimpleAsset))
+	err := shim.Start(new(MedicalRecord))
 	if err != nil {
 		fmt.Printf("Error creating new Simple Asset: %s", err)
 	}
