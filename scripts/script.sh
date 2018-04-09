@@ -84,50 +84,57 @@ echo "Updating anchor peers for org5..."
 updateAnchorPeers 0 5
 
 
-echo "Installing test chaincode on peer0.org1..."
-installTestChaincode 0 1
+#echo "Installing test chaincode on peer0.org1..."
+#installTestChaincode 0 1
 
-echo "Instantiating chaincode on peer0.org1..."
-instantiateChaincode 0 1
+#echo "Instantiating chaincode on peer0.org1..."
+#instantiateChaincode 0 1
 
-echo "Querying chaincode on peer0.org1..."
-chaincodeQuery 0 1 100
+#echo "Querying chaincode on peer0.org1..."
+#chaincodeQuery 0 1 100
 
 
 ## Install chaincode on peer0.org1 and peer0.org2
-# echo "Installing chaincode on peer0.org1..."
-# installChaincode 0 1
-# echo "Installing chaincode on peer0.org2..."
-# installChaincode 0 2
-# echo "Installing chaincode on peer0.org3..."
-# installChaincode 0 3
-# echo "Installing chaincode on peer0.org4..."
-# installChaincode 0 4
-# echo "Installing chaincode on peer0.org5..."
-# installChaincode 0 5
+echo "Installing chaincode on peer0.org1..."
+installChaincode 0 1
+echo "Installing chaincode on peer0.org2..."
+installChaincode 0 2
+echo "Installing chaincode on peer0.org3..."
+installChaincode 0 3
+echo "Installing chaincode on peer0.org4..."
+installChaincode 0 4
+echo "Installing chaincode on peer0.org5..."
+installChaincode 0 5
 
-# # Instantiate chaincode on peer0.org2
+
+# # Instantiate chaincode on peer0.org1
+echo "Instantiating chaincode on peer0.org2..."
+instantiateChaincode 0 1
+# # # Instantiate chaincode on peer0.org2
 # echo "Instantiating chaincode on peer0.org2..."
 # instantiateChaincode 0 2
-# # Instantiate chaincode on peer0.org2
+# # # Instantiate chaincode on peer0.org2
 # echo "Instantiating chaincode on peer0.org3..."
 # instantiateChaincode 0 3
-
-## Instantiate chaincode on peer0.org2
-#echo "Instantiating chaincode on peer0.org4..."
-#instantiateChaincode 0 4
-## Instantiate chaincode on peer0.org2
-#echo "Instantiating chaincode on peer0.org5..."
-#instantiateChaincode 0 5
-
+# ## Instantiate chaincode on peer0.org2
+# echo "Instantiating chaincode on peer0.org4..."
+# instantiateChaincode 0 4
+# ## Instantiate chaincode on peer0.org2
+# echo "Instantiating chaincode on peer0.org5..."
+# instantiateChaincode 0 5
 
 # # Query chaincode on peer0.org1
-# echo "Querying chaincode on peer0.org1..."
-# chaincodeQuery 0 1 100
+echo "Querying chaincode on peer0.org1..."
+chaincodeQuery 0 1 100
+
+# # Query chaincode on peer0.org1
+echo "Querying chaincode on peer0.org2..."
+chaincodeQuery 0 2 100
+
 
 # # Invoke chaincode on peer0.org1
-# echo "Sending invoke transaction on peer0.org1..."
-# chaincodeInvoke 0 1
+echo "Sending invoke transaction on peer0.org1..."
+chaincodeInvoke 0 1
 
 # ## Install chaincode on peer1.org2
 # echo "Installing chaincode on peer1.org2..."
