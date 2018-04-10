@@ -9,19 +9,14 @@ import (
 	pb "github.com/hyperledger/fabric/protos/peer"
 )
 
-/* // MedicalRecord implements a simple chaincode to manage an asset
-type MedicalRecord struct {
-	FirstName      string   `json:"firstname"`
-	LastName       string   `json:"lastname"`
-	PersonalNumber string   `json:"personal_number"`
-	Gender         string   `json:"gender"`
-	Address        string   `json:"address"`
-	ContactPerson  string   `json:"contact_person"`
-	Caregivers     []string `json:"caregivers"`
-	Allergies      []string `json:"allergies"`
-	Places         []string `json:"places"`
-	ClinicalInfo   []string `json:"clinicalinfo"`
-}
+/*
+// Saved commands for testing
+peer chaincode install -p chaincodedev/chaincode/prototype/go -n mycc -v 0
+peer chaincode instantiate -n mycc -v 0 -c '{"Args":[""]}' -C myc
+peer chaincode invoke -n mycc -c '{"Args":["initLedger"]}' -C myc
+peer chaincode invoke -n mycc -c '{"Args":["createMedicalRecord", "940220-0050", "Okan", "Arabaci", "male", "Kista", "Farsan"]}' -C myc
+peer chaincode invoke -n mycc -c '{"Args":["createMedicalRecord", "940220-0050", "Okan", "Arabaci", "male", "Kista", "Farsan"]}' -C myc
+peer chaincode query -n mycc -c '{"Args":["getMedicalRecord","MedicalRecord3"]}' -C myc
 */
 
 // SimpleChaincode example simple Chaincode implementation
@@ -69,7 +64,7 @@ func (t *MedicalRecord) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	if function == "getMedicalRecord" {
 		return t.getMedicalRecord(stub, args)
 	} else if function == "createMedicalRecord" {
-		//return t.createMedicalRecord(stub, args)
+		return t.createMedicalRecord(stub, args)
 	} else if function == "initLedger" {
 		return t.initLedger(stub)
 	} else if function == "deleteMedicalRecord" {
@@ -112,20 +107,29 @@ func (t *MedicalRecord) getMedicalRecord(stub shim.ChaincodeStubInterface, args 
 	return shim.Success(medicalRecord)
 }
 
-/* func (t *MedicalRecord) createMedicalRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	if len(args) != 2 {
-		return "", fmt.Errorf("Incorrect arguments. Expecting a key and a value")
-	}
+func (t *MedicalRecord) createMedicalRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
-	err := stub.PutState(args[0], []byte(args[1]))
-	if err != nil {
-		return "", fmt.Errorf("Failed to set asset: %s", args[0])
+	// Must have: 1) PersonalNumber, 2) Firstname, 3) Lastname, 4) Gender, 5) Address, 6) Contactperson
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
-	return args[1], nil
+	fmt.Println("Arg0:" + args[0])
+	fmt.Println("Arg1:" + args[1])
+	fmt.Println("Arg2:" + args[2])
+	fmt.Println("Arg3:" + args[3])
+	fmt.Println("Arg4:" + args[4])
+	fmt.Println("Arg5:" + args[5])
+
+	// Set args for the created record
+	var medicalRecord = MedicalRecord{PersonalNumber: args[0], Firstname: args[1], Lastname: args[2], Gender: args[3], Address: args[4], ContactPerson: args[5]}
+	medicalRecordAsBytes, _ := json.Marshal(medicalRecord)
+	stub.PutState(args[0], medicalRecordAsBytes)
+
+	return shim.Success(nil)
+
 }
-*/
 
-// Not finished at all
+// Delete medical record based on ID
 func (t *MedicalRecord) deleteMedicalRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
