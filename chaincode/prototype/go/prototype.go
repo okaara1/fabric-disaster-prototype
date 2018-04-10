@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
@@ -14,9 +16,12 @@ import (
 peer chaincode install -p chaincodedev/chaincode/prototype/go -n mycc -v 0
 peer chaincode instantiate -n mycc -v 0 -c '{"Args":[""]}' -C myc
 peer chaincode invoke -n mycc -c '{"Args":["initLedger"]}' -C myc
+peer chaincode invoke -n mycc -c '{"Args":["getHistoryForRecord", "123456-7890"]}' -C myc
+peer chaincode invoke -n mycc -c '{"Args":["deleteMedicalRecord", "940220-0050"]}' -C myc
 peer chaincode invoke -n mycc -c '{"Args":["createMedicalRecord", "940220-0050", "Okan", "Arabaci", "male", "Kista", "Farsan"]}' -C myc
 peer chaincode invoke -n mycc -c '{"Args":["createMedicalRecord", "940220-0050", "Okan", "Arabaci", "male", "Kista", "Farsan"]}' -C myc
 peer chaincode query -n mycc -c '{"Args":["getMedicalRecord","MedicalRecord3"]}' -C myc
+peer chaincode query -n mycc -c '{"Args":["getMedicalRecord","940220-0050"]}' -C myc
 */
 
 // SimpleChaincode example simple Chaincode implementation
@@ -49,9 +54,7 @@ func (t *MedicalRecord) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Success(nil)
 }
 
-// Invoke is called per transaction on the chaincode. Each transaction is
-// either a 'get' or a 'set' on the asset created by Init function. The Set
-// method may create a new asset by specifying a new key-value pair.
+// Invoke is called per transaction on the chaincode.
 func (t *MedicalRecord) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	// Extract the function and args from the transaction proposal
 	function, args := stub.GetFunctionAndParameters()
@@ -69,6 +72,8 @@ func (t *MedicalRecord) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.initLedger(stub)
 	} else if function == "deleteMedicalRecord" {
 		return t.deleteMedicalRecord(stub, args)
+	} else if function == "getHistoryForRecord" {
+		return t.getHistoryForRecord(stub, args)
 	}
 
 	if err != nil {
@@ -107,9 +112,10 @@ func (t *MedicalRecord) getMedicalRecord(stub shim.ChaincodeStubInterface, args 
 	return shim.Success(medicalRecord)
 }
 
+// Creates medical record with minimum args listed below
 func (t *MedicalRecord) createMedicalRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
-	// Must have: 1) PersonalNumber, 2) Firstname, 3) Lastname, 4) Gender, 5) Address, 6) Contactperson
+	// Must have: 0) PersonalNumber, 1) Firstname, 2) Lastname, 3) Gender, 4) Address, 5) Contactperson
 	if len(args) != 6 {
 		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
@@ -144,6 +150,73 @@ func (t *MedicalRecord) deleteMedicalRecord(stub shim.ChaincodeStubInterface, ar
 	}
 
 	return shim.Success(nil)
+}
+
+// Gets history of values for the medical record
+func (t *MedicalRecord) getHistoryForRecord(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+
+	if len(args) < 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	medicalRecord := args[0]
+
+	fmt.Printf("- start getHistoryForRecord: %s\n", medicalRecord)
+
+	resultsIterator, err := stub.GetHistoryForKey(medicalRecord)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	defer resultsIterator.Close()
+
+	// buffer is a JSON array containing historic values for the marble
+	var buffer bytes.Buffer
+	buffer.WriteString("[")
+
+	bArrayMemberAlreadyWritten := false
+	for resultsIterator.HasNext() {
+		response, err := resultsIterator.Next()
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		// Add a comma before array members, suppress it for the first array member
+		if bArrayMemberAlreadyWritten == true {
+			buffer.WriteString(",")
+		}
+		buffer.WriteString("{\"TxId\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(response.TxId)
+		buffer.WriteString("\"")
+
+		buffer.WriteString(", \"Value\":")
+		// if it was a delete operation on given key, then we need to set the
+		//corresponding value null. Else, we will write the response.Value
+		//as-is (as the Value itself a JSON marble)
+		if response.IsDelete {
+			buffer.WriteString("null")
+		} else {
+			buffer.WriteString(string(response.Value))
+		}
+
+		buffer.WriteString(", \"Timestamp\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)).String())
+		buffer.WriteString("\"")
+
+		buffer.WriteString(", \"IsDelete\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(strconv.FormatBool(response.IsDelete))
+		buffer.WriteString("\"")
+
+		buffer.WriteString("}")
+		bArrayMemberAlreadyWritten = true
+	}
+	buffer.WriteString("]")
+
+	fmt.Printf("- getHistoryForRecord returning:\n%s\n", buffer.String())
+
+	return shim.Success(buffer.Bytes())
+
 }
 
 // Initate ledger with sample data
