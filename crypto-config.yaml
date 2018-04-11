@@ -106,6 +106,15 @@ PeerOrgs:
     Users:
       Count: 1
 
+  - Name: Org6
+    Domain: org6.example.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1
+
+
 ############# VM ###############
 # This is how we define our external hosts
 #

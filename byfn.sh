@@ -256,7 +256,7 @@ function simulateDisaster() {
   peer_containers=($(docker ps --format "{{.Names}}" | grep "peer[0-9]" | grep -v dev))
 
   #Remove 6/10 peer containers
-  for i in 1 2 3 4 5 6
+  for i in 1 2 3 4 5 6 7
   do
     a_peer=${peer_containers[i]}
     cc_container=($(docker ps --format "{{.Names}}" | grep "dev" | grep "$a_peer"))
@@ -288,7 +288,7 @@ function replacePrivateKey () {
   cp docker-compose-e2e-template.yaml docker-compose-e2e.yaml
 
   # The next steps will replace the template's contents with the
-  # actual values of the private key file names for the two CAs.
+  # actual values of the private key file names
   CURRENT_DIR=$PWD
 
   #Org1
@@ -321,6 +321,11 @@ function replacePrivateKey () {
   cd "$CURRENT_DIR"
   sed $OPTS "s/CA5_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose-e2e.yaml
 
+  #Org6
+  cd crypto-config/peerOrganizations/org6.example.com/ca/
+  PRIV_KEY=$(ls *_sk)
+  cd "$CURRENT_DIR"
+  sed $OPTS "s/CA6_PRIVATE_KEY/${PRIV_KEY}/g" docker-compose-e2e.yaml
 
   # If MacOSX, remove the temporary backup of the docker-compose file
   if [ "$ARCH" == "Darwin" ]; then
@@ -514,6 +519,22 @@ function generateChannelArtifacts() {
     exit 1
   fi
   echo
+
+  echo
+  echo "#################################################################"
+  echo "#######    Generating anchor peer update for Org6MSP   ##########"
+  echo "#################################################################"
+  set -x
+  configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate \
+  ./channel-artifacts/Org6MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org6MSP
+  res=$?
+  set +x
+  if [ $res -ne 0 ]; then
+    echo "Failed to generate anchor peer update for Org6MSP..."
+    exit 1
+  fi
+  echo
+
 
 }
 
