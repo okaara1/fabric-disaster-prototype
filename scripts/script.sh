@@ -22,7 +22,7 @@ COUNTER=1
 MAX_RETRY=5
 ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
-CC_SRC_PATH="github.com/chaincode/chaincode_example02/go/"
+CC_SRC_PATH="github.com/chaincode/prototype/go/"
 if [ "$LANGUAGE" = "node" ]; then
 	CC_SRC_PATH="/opt/gopath/src/github.com/chaincode/chaincode_example02/node/"
 fi
@@ -108,11 +108,11 @@ installChaincode 0 5
 
 
 # # Instantiate chaincode on peer0.org1
-echo "Instantiating chaincode on peer0.org2..."
+echo "Instantiating chaincode on peer0.org1..."
 instantiateChaincode 0 1
-# # # Instantiate chaincode on peer0.org2
-# echo "Instantiating chaincode on peer0.org2..."
-# instantiateChaincode 0 2
+# # Instantiate chaincode on peer0.org2
+echo "Instantiating chaincode on peer0.org2..."
+instantiateChaincode 0 2
 # # # Instantiate chaincode on peer0.org2
 # echo "Instantiating chaincode on peer0.org3..."
 # instantiateChaincode 0 3
@@ -123,18 +123,19 @@ instantiateChaincode 0 1
 # echo "Instantiating chaincode on peer0.org5..."
 # instantiateChaincode 0 5
 
-# # Query chaincode on peer0.org1
-echo "Querying chaincode on peer0.org1..."
-chaincodeQuery 0 1 100
-
-# # Query chaincode on peer0.org1
-echo "Querying chaincode on peer0.org2..."
-chaincodeQuery 0 2 100
-
-
 # # Invoke chaincode on peer0.org1
 echo "Sending invoke transaction on peer0.org1..."
 chaincodeInvoke 0 1
+
+# # # Query chaincode on peer0.org1
+echo "Querying chaincode on peer0.org1..."
+chaincodeQuery 0 4 100
+
+# # # Query chaincode on peer0.org1
+# echo "Querying chaincode on peer0.org2..."
+# chaincodeQuery 0 2 100
+
+
 
 # ## Install chaincode on peer1.org2
 # echo "Installing chaincode on peer1.org2..."
