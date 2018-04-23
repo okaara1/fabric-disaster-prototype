@@ -1,15 +1,35 @@
-import { Router, Request, Response } from 'express';
 
-const router: Router = Router();
+import { Router, Request, Response, NextFunction } from 'express';
+import { RouteController } from './interface.controllers';
 
-router.get('/', (req: Request, res: Response) => {
-    res.send('Hello, World!');
-});
+class WelcomeController extends RouteController {
 
-router.get('/:name', (req: Request, res: Response) => {
-    let { name } = req.params;
+    public router: Router;
 
-    res.send(`Hello, ${name}!`);
-});
+    constructor() {
+        super();
+        this.router = Router();
+        this.init();
+    }
 
-export const WelcomeController: Router = router;
+    public getRoutes(): Router {
+        return this.router;
+    }
+
+    public GetWelcome(req: Request, res: Response): void {
+        res.status(200).send(`Welcome All!`);
+    }
+
+    public GetWelcomeName(req: Request, res: Response): void {
+        res.status(200).send(`Welcome ${req.params['id']}`);
+    }
+    
+    protected init() {
+        this.router
+            .get("/", this.GetWelcome)
+            .get("/:id", this.GetWelcomeName);
+    }
+}
+
+const welcomeController = new WelcomeController();
+export const welcomeRoutes = welcomeController.getRoutes();
