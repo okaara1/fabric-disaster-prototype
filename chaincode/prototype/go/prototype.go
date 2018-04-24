@@ -22,6 +22,8 @@ peer chaincode invoke -n mycc -c '{"Args":["createMedicalRecord", "940220-0050",
 peer chaincode invoke -n mycc -c '{"Args":["createMedicalRecord", "940220-0050", "Okan", "Arabaci", "male", "Kista", "Farsan"]}' -C myc
 peer chaincode query -n mycc -c '{"Args":["getMedicalRecord","MedicalRecord3"]}' -C myc
 peer chaincode query -n mycc -c '{"Args":["getMedicalRecord","940220-0050"]}' -C myc
+peer chaincode query -n mycc -c '{"Args":["getMedicalRecord","940220-0050"]}' -C
+peer chaincode invoke -n mycc -c '{"Args":["queryAllRecords"]}' -C myc
 */
 
 // SimpleChaincode example simple Chaincode implementation
@@ -74,6 +76,8 @@ func (t *MedicalRecord) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.deleteMedicalRecord(stub, args)
 	} else if function == "getHistoryForRecord" {
 		return t.getHistoryForRecord(stub, args)
+	} else if function == "queryAllRecords" {
+		return t.queryAllRecords(stub)
 	}
 
 	if err != nil {
@@ -222,27 +226,71 @@ func (t *MedicalRecord) getHistoryForRecord(stub shim.ChaincodeStubInterface, ar
 // Initate ledger with sample data
 func (t *MedicalRecord) initLedger(stub shim.ChaincodeStubInterface) pb.Response {
 	medicalRecords := []MedicalRecord{
-		MedicalRecord{PersonalNumber: "123456-7890", Firstname: "Cecile", Lastname: "Graves", Gender: "female", Address: "Teststreet 1", ContactPerson: "Family"},
-		MedicalRecord{PersonalNumber: "123456-7890", Firstname: "Vinson", Lastname: "Browning", Gender: "male", Address: "Teststreet 1", ContactPerson: "Family"},
-		MedicalRecord{PersonalNumber: "123456-7890", Firstname: "Susan", Lastname: "Hickman", Gender: "female", Address: "Teststreet 1", ContactPerson: "Family"},
-		MedicalRecord{PersonalNumber: "123456-7890", Firstname: "Lula", Lastname: "Merrill", Gender: "female", Address: "Teststreet 1", ContactPerson: "Family"},
-		MedicalRecord{PersonalNumber: "123456-7890", Firstname: "Shari", Lastname: "Mcintyre", Gender: "female", Address: "Teststreet 1", ContactPerson: "Family"},
-		MedicalRecord{PersonalNumber: "123456-7890", Firstname: "Campbell", Lastname: "Ball", Gender: "male", Address: "Teststreet 1", ContactPerson: "Family"},
-		MedicalRecord{PersonalNumber: "123456-7890", Firstname: "Lindsay", Lastname: "Knapp", Gender: "male", Address: "Teststreet 1", ContactPerson: "Family"},
-		MedicalRecord{PersonalNumber: "123456-7890", Firstname: "Cruz", Lastname: "Berg", Gender: "male", Address: "Teststreet 1", ContactPerson: "Family"},
-		MedicalRecord{PersonalNumber: "123456-7890", Firstname: "Griffith", Lastname: "Lloyd", Gender: "male", Address: "Teststreet 1", ContactPerson: "Family"},
-		MedicalRecord{PersonalNumber: "123456-7890", Firstname: "Candace", Lastname: "Oconnor", Gender: "female", Address: "Teststreet 1", ContactPerson: "Family"},
+		MedicalRecord{PersonalNumber: "000000-0001", Firstname: "Cecile", Lastname: "Graves", Gender: "female", Address: "Teststreet 1", ContactPerson: "Family"},
+		MedicalRecord{PersonalNumber: "000000-0002", Firstname: "Vinson", Lastname: "Browning", Gender: "male", Address: "Teststreet 1", ContactPerson: "Family"},
+		MedicalRecord{PersonalNumber: "000000-0003", Firstname: "Susan", Lastname: "Hickman", Gender: "female", Address: "Teststreet 1", ContactPerson: "Family"},
+		MedicalRecord{PersonalNumber: "000000-0004", Firstname: "Lula", Lastname: "Merrill", Gender: "female", Address: "Teststreet 1", ContactPerson: "Family"},
+		MedicalRecord{PersonalNumber: "000000-0005", Firstname: "Shari", Lastname: "Mcintyre", Gender: "female", Address: "Teststreet 1", ContactPerson: "Family"},
+		MedicalRecord{PersonalNumber: "000000-0006", Firstname: "Campbell", Lastname: "Ball", Gender: "male", Address: "Teststreet 1", ContactPerson: "Family"},
+		MedicalRecord{PersonalNumber: "000000-0007", Firstname: "Lindsay", Lastname: "Knapp", Gender: "male", Address: "Teststreet 1", ContactPerson: "Family"},
+		MedicalRecord{PersonalNumber: "000000-0008", Firstname: "Cruz", Lastname: "Berg", Gender: "male", Address: "Teststreet 1", ContactPerson: "Family"},
+		MedicalRecord{PersonalNumber: "000000-0009", Firstname: "Griffith", Lastname: "Lloyd", Gender: "male", Address: "Teststreet 1", ContactPerson: "Family"},
+		MedicalRecord{PersonalNumber: "000000-0000", Firstname: "Candace", Lastname: "Oconnor", Gender: "female", Address: "Teststreet 1", ContactPerson: "Family"},
 	}
 
 	i := 0
 	for i < len(medicalRecords) {
 		recordAsBytes, _ := json.Marshal(medicalRecords[i])
-		stub.PutState("MedicalRecord"+strconv.Itoa(i), recordAsBytes)
+		stub.PutState(medicalRecords[i].PersonalNumber, recordAsBytes)
 		fmt.Println("Added", medicalRecords[i])
 		i = i + 1
 	}
 
 	return shim.Success(nil)
+}
+
+// Query function dsakdposa
+func (t *MedicalRecord) queryAllRecords(stub shim.ChaincodeStubInterface) pb.Response {
+
+	startKey := "000000-0000"
+	endKey := "999999-9999"
+
+	resultsIterator, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	defer resultsIterator.Close()
+
+	// buffer is a JSON array containing QueryResults
+	var buffer bytes.Buffer
+	buffer.WriteString("[")
+
+	bArrayMemberAlreadyWritten := false
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		// Add a comma before array members, suppress it for the first array member
+		if bArrayMemberAlreadyWritten == true {
+			buffer.WriteString(",")
+		}
+		buffer.WriteString("{\"Key\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(queryResponse.Key)
+		buffer.WriteString("\"")
+
+		buffer.WriteString(", \"Record\":")
+		// Record is a JSON object, so we write as-is
+		buffer.WriteString(string(queryResponse.Value))
+		buffer.WriteString("}")
+		bArrayMemberAlreadyWritten = true
+	}
+	buffer.WriteString("]")
+
+	fmt.Printf("- queryAllRecords:\n%s\n", buffer.String())
+
+	return shim.Success(buffer.Bytes())
 }
 
 // The main function is only relevant in unit test mode. Only included here for completeness.
